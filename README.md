@@ -78,6 +78,23 @@ Cette version reste volontairement simple :
 - optimizer Adam ;
 - métriques `accuracy`, `precision` et `recall`.
 
+Le modèle reçoit une image RGB redimensionnée en `128 x 128`.
+Les pixels sont normalisés entre 0 et 1 avant l'entraînement.
+
+L'architecture suit une logique progressive :
+
+- les couches `Conv2D` apprennent des motifs visuels dans l'image ;
+- les couches `MaxPooling2D` réduisent la taille des cartes de caractéristiques ;
+- la dernière couche de convolution apprend des motifs plus globaux ;
+- `GlobalAveragePooling2D` transforme les cartes de caractéristiques en un vecteur compact ;
+- la couche `Dense` combine ces informations pour décider si l'image semble fraîche ou pourrie ;
+- `Dropout` limite le risque d'apprendre trop précisément les images du train ;
+- la dernière couche `Dense(1, sigmoid)` retourne un score entre 0 et 1.
+
+Dans ce projet, un score proche de 0 correspond à `fresh`.
+Un score proche de 1 correspond à `rotten`.
+Le seuil de décision utilisé pour l'évaluation est 0.5.
+
 L'entraînement se lance avec :
 
 ```bash
