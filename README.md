@@ -64,6 +64,34 @@ reports/figures/
 Ces figures viennent du dataset local.
 Elles doivent être régénérées si le dataset ou son organisation change.
 
+## Baseline CNN
+
+Une première baseline CNN est définie dans `src/model.py`.
+Elle utilise TensorFlow / Keras pour une classification binaire `fresh` / `rotten`.
+
+Cette version reste volontairement simple :
+
+- pas de NoisyViT ;
+- pas de transfer learning ;
+- sortie sigmoid ;
+- loss `binary_crossentropy` ;
+- optimizer Adam ;
+- métriques `accuracy`, `precision` et `recall`.
+
+L'entraînement se lance avec :
+
+```bash
+python src/train.py
+```
+
+L'évaluation se lance avec :
+
+```bash
+python src/evaluate.py
+```
+
+Le fichier `reports/training_history.csv` permet de tracer les courbes `loss` et `accuracy`.
+
 ### Split classique
 
 Le `standard_split` sépare les images en train, validation et test.

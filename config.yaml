@@ -18,9 +18,16 @@ data:
 
 training:
   batch_size: 32
+  epochs: 20
+  learning_rate: 0.001
+  dropout_rate: 0.3
   validation_size: 0.2
   test_size: 0.2
   random_seed: 42
+  early_stopping_patience: 5
+  model_filename: baseline_model.keras
+  history_filename: training_history.csv
+  split_filename: standard_split.csv
 
 web_app:
   confidence_thresholds:
