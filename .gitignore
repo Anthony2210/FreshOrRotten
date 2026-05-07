@@ -1,0 +1,33 @@
+# Environnements locaux
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Données locales
+data/raw/
+data/processed/
+Freshness44/
+
+# Modèles et checkpoints volumineux
+models/*
+!models/.gitkeep
+checkpoints/
+*.ckpt
+*.h5
+*.hdf5
+*.keras
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+desktop.ini

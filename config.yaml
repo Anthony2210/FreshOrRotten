@@ -1,0 +1,28 @@
+project:
+  name: FreshOrRotten
+
+paths:
+  raw_data_dir: data/raw
+  processed_data_dir: data/processed
+  model_dir: models
+  figures_dir: reports/figures
+  results_report: reports/results.md
+
+data:
+  image_size:
+    width: 128
+    height: 128
+  labels:
+    fresh: 0
+    rotten: 1
+
+training:
+  batch_size: 32
+  validation_size: 0.2
+  test_size: 0.2
+  random_seed: 42
+
+web_app:
+  confidence_thresholds:
+    confident: 0.80
+    uncertain: 0.60
