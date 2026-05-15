@@ -29,6 +29,16 @@ training:
   history_filename: training_history.csv
   split_filename: standard_split.csv
 
+generalization:
+  unseen_categories: []
+  unseen_model_filename: baseline_model_unseen.keras
+  unseen_history_filename: unseen_training_history.csv
+  unseen_split_filename: unseen_category_split.csv
+  unseen_metrics_filename: unseen_category_evaluation_metrics.csv
+  unseen_confusion_matrix_filename: unseen_category_confusion_matrix.csv
+  unseen_category_metrics_filename: unseen_category_metrics_by_product_type.csv
+  comparison_filename: evaluation_comparison.csv
+
 web_app:
   confidence_thresholds:
     confident: 0.80

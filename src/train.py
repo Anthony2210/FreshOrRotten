@@ -7,7 +7,6 @@ from pathlib import Path
 import pandas as pd
 import tensorflow as tf
 import yaml
-from sklearn.model_selection import train_test_split
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
@@ -16,6 +15,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.append(str(SCRIPT_DIR))
 
 from model import build_baseline_model
+from split_strategy import create_standard_split, create_unseen_category_split, normalize_category_list, save_split_file
 
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
@@ -107,35 +107,6 @@ def scan_image_files(dataset_path, labels):
     return image_index_df
 
 
-def split_dataset(image_index_df, validation_size, test_size, random_seed):
-    """Crée le split classique train / validation / test."""
-    temporary_size = validation_size + test_size
-
-    if temporary_size <= 0 or temporary_size >= 1:
-        raise ValueError("validation_size + test_size doit être compris entre 0 et 1.")
-
-    stratify_labels = image_index_df["label"]
-
-    training_set, temporary_set = train_test_split(
-        image_index_df,
-        test_size=temporary_size,
-        random_state=random_seed,
-        stratify=stratify_labels,
-    )
-
-    test_ratio = test_size / temporary_size
-    temporary_stratify = temporary_set["label"]
-
-    validation_set, test_set = train_test_split(
-        temporary_set,
-        test_size=test_ratio,
-        random_state=random_seed,
-        stratify=temporary_stratify,
-    )
-
-    return training_set, validation_set, test_set
-
-
 def load_image(image_path, label, image_size):
     """Charge une image et applique le même prétraitement pour train et test."""
     image = tf.io.read_file(image_path)
@@ -173,34 +144,20 @@ def create_image_dataset(image_index_df, image_size, batch_size, shuffle=False, 
     return dataset
 
 
-def save_split_file(training_set, validation_set, test_set, reports_dir, dataset_path, split_filename):
-    """Sauvegarde le split utilisé pour pouvoir refaire l'évaluation."""
-    split_frames = []
+def get_unseen_categories(config, selected_categories):
+    """Lit les catégories non vues depuis la CLI ou config.yaml."""
+    if selected_categories:
+        return normalize_category_list(selected_categories)
 
-    for split_name, split_df in [
-        ("train", training_set),
-        ("validation", validation_set),
-        ("test", test_set),
-    ]:
-        current_df = split_df.copy()
-        current_df["split"] = split_name
-        split_frames.append(current_df)
-
-    split_df = pd.concat(split_frames, ignore_index=True)
-
-    # On sauvegarde des chemins relatifs pour éviter de figer un chemin local Windows.
-    split_df["image_path"] = split_df["image_path"].apply(
-        lambda path: Path(path).relative_to(dataset_path).as_posix()
-    )
-
-    reports_dir.mkdir(parents=True, exist_ok=True)
-    split_df.to_csv(reports_dir / split_filename, index=False)
+    generalization_config = config.get("generalization", {})
+    return normalize_category_list(generalization_config.get("unseen_categories", []))
 
 
-def train_model(config):
+def train_model(config, split_name="standard", unseen_categories=None):
     """Lance l'entraînement complet de la baseline CNN."""
     paths_config = config["paths"]
     training_config = config["training"]
+    generalization_config = config.get("generalization", {})
 
     dataset_path = PROJECT_ROOT / paths_config["raw_data_dir"]
     model_dir = PROJECT_ROOT / paths_config["model_dir"]
@@ -215,19 +172,42 @@ def train_model(config):
     learning_rate = float(training_config.get("learning_rate", 0.001))
     dropout_rate = float(training_config.get("dropout_rate", 0.3))
     early_stopping_patience = int(training_config.get("early_stopping_patience", 5))
-    model_filename = training_config.get("model_filename", "baseline_model.keras")
-    history_filename = training_config.get("history_filename", "training_history.csv")
-    split_filename = training_config.get("split_filename", "standard_split.csv")
+    if split_name == "unseen":
+        selected_unseen_categories = get_unseen_categories(config, unseen_categories)
+
+        if not selected_unseen_categories:
+            raise ValueError(
+                "Ajoutez des catégories avec --unseen-categories ou dans generalization.unseen_categories."
+            )
+
+        model_filename = generalization_config.get("unseen_model_filename", "baseline_model_unseen.keras")
+        history_filename = generalization_config.get("unseen_history_filename", "unseen_training_history.csv")
+        split_filename = generalization_config.get("unseen_split_filename", "unseen_category_split.csv")
+    else:
+        selected_unseen_categories = []
+        model_filename = training_config.get("model_filename", "baseline_model.keras")
+        history_filename = training_config.get("history_filename", "training_history.csv")
+        split_filename = training_config.get("split_filename", "standard_split.csv")
 
     tf.keras.utils.set_random_seed(random_seed)
 
     image_index_df = scan_image_files(dataset_path, config["data"]["labels"])
-    training_set, validation_set, test_set = split_dataset(
-        image_index_df=image_index_df,
-        validation_size=validation_size,
-        test_size=test_size,
-        random_seed=random_seed,
-    )
+
+    if split_name == "unseen":
+        training_set, validation_set, test_set = create_unseen_category_split(
+            image_index_df=image_index_df,
+            unseen_categories=selected_unseen_categories,
+            validation_size=validation_size,
+            random_seed=random_seed,
+        )
+        print(f"Catégories non vues : {', '.join(selected_unseen_categories)}")
+    else:
+        training_set, validation_set, test_set = create_standard_split(
+            image_index_df=image_index_df,
+            validation_size=validation_size,
+            test_size=test_size,
+            random_seed=random_seed,
+        )
 
     print(f"Images train : {len(training_set)}")
     print(f"Images validation : {len(validation_set)}")
@@ -306,10 +286,26 @@ def parse_args():
         default=PROJECT_ROOT / "config.yaml",
         help="Chemin vers config.yaml.",
     )
+    parser.add_argument(
+        "--split",
+        choices=["standard", "unseen"],
+        default="standard",
+        help="Protocole d'entraînement.",
+    )
+    parser.add_argument(
+        "--unseen-categories",
+        nargs="*",
+        default=None,
+        help="Catégories à retirer du train pour le protocole unseen.",
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
     project_config = load_config(args.config)
-    train_model(project_config)
+    train_model(
+        project_config,
+        split_name=args.split,
+        unseen_categories=args.unseen_categories,
+    )

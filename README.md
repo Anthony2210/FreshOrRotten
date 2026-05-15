@@ -122,6 +122,22 @@ Le `unseen_category_split` retire certaines catégories du jeu d'entraînement.
 Ces catégories sont utilisées uniquement pour le test.
 
 Ce protocole permet de tester la généralisation à des produits jamais vus par le modèle pendant l'entraînement.
+Il nécessite de réentraîner la même baseline CNN sans les catégories choisies.
+
+Exemple :
+
+```bash
+python src/train.py --split unseen --unseen-categories apple banana tomato
+python src/evaluate.py --split unseen --unseen-categories apple banana tomato
+```
+
+Les résultats par catégorie sont sauvegardés dans :
+
+```text
+reports/unseen_category_metrics_by_product_type.csv
+```
+
+Le notebook `notebooks/02_generalization_test.ipynb` guide cette analyse.
 
 ## Plateforme web prévue
 

@@ -17,3 +17,13 @@ Après entraînement de la baseline CNN, les scripts peuvent générer :
 - `evaluation_metrics.csv` : métriques sur le `test_set` ;
 - `confusion_matrix.csv` : matrice de confusion sur le `test_set`.
 
+Après évaluation sur catégories non vues, les scripts peuvent générer :
+
+- `unseen_training_history.csv` : historique du modèle entraîné sans les catégories non vues ;
+- `unseen_category_split.csv` : split avec catégories non vues dans le test ;
+- `unseen_category_evaluation_metrics.csv` : métriques globales sur les catégories non vues ;
+- `unseen_category_confusion_matrix.csv` : matrice de confusion sur les catégories non vues ;
+- `unseen_category_metrics_by_product_type.csv` : métriques par type de produit ;
+- `evaluation_comparison.csv` : comparaison entre `standard_split` et `unseen_category_split`.
+
+Le fichier `results.md` résume les résultats réels déjà obtenus.
