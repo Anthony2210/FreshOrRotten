@@ -280,6 +280,63 @@ Ce résultat n'est pas un échec.
 Il donne une conclusion exploitable : une méthode de rejet basée uniquement sur la distance aux prototypes est trop simple.
 Pour aller plus loin, il faudrait tester une méthode plus robuste, par exemple une combinaison entre confiance sigmoid et distance de features, ou un apprentissage qui cherche explicitement à réduire la dépendance au `product_type`.
 
+## Incertitude hybride
+
+Une troisième méthode a été testée : la règle hybride.
+Elle combine les deux signaux précédents :
+
+- le score de confiance sigmoid ;
+- la distance aux prototypes dans l'espace de features.
+
+Une image est acceptée seulement si elle respecte les deux conditions :
+
+```text
+confidence_score >= confidence_threshold
+distance_to_predicted_class_prototype <= distance_threshold
+```
+
+L'objectif est de vérifier si la distance de features apporte une information utile en plus de la confiance sigmoid.
+
+Résultats globaux :
+
+| protocole | seuil confiance | seuil distance | baseline accuracy | accepted accuracy | coverage | uncertain rate | uncertain error rate |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| standard_split | 0.75 | 46.8262 | 0.8969 | 0.9555 | 0.7897 | 0.2104 | 0.3231 |
+| unseen_category_split | 0.77 | 49.9565 | 0.6706 | 0.7398 | 0.7233 | 0.2767 | 0.5100 |
+
+Ces résultats sont presque identiques à ceux de l'incertitude sigmoid seule.
+La raison est que le seuil de distance choisi par la calibration est très grand.
+La contrainte de distance élimine donc très peu d'images supplémentaires.
+Dans cette configuration, c'est surtout le score de confiance sigmoid qui décide si une image est acceptée ou rejetée.
+
+Comparaison des trois méthodes :
+
+| méthode | protocole | accepted accuracy | coverage | uncertain rate |
+|---|---|---:|---:|---:|
+| sigmoid confidence | standard_split | 0.9555 | 0.7897 | 0.2103 |
+| feature distance | standard_split | 0.9151 | 0.5009 | 0.4991 |
+| hybrid | standard_split | 0.9555 | 0.7897 | 0.2104 |
+| sigmoid confidence | unseen_category_split | 0.7398 | 0.7234 | 0.2766 |
+| feature distance | unseen_category_split | 0.6992 | 0.4526 | 0.5474 |
+| hybrid | unseen_category_split | 0.7398 | 0.7233 | 0.2767 |
+
+La méthode hybride ne dégrade pas les résultats, mais elle n'améliore pas clairement la méthode sigmoid.
+Cela indique que, dans cette version du modèle, la distance aux prototypes n'apporte pas encore une information complémentaire forte.
+
+Résultats hybrides sur les catégories non vues :
+
+| product_type | baseline accuracy | accepted accuracy | coverage | uncertain rate |
+|---|---:|---:|---:|---:|
+| apple | 0.7663 | 0.8528 | 0.6906 | 0.3094 |
+| banana | 0.6205 | 0.6468 | 0.8210 | 0.1790 |
+| tomato | 0.5838 | 0.7179 | 0.6230 | 0.3770 |
+
+Cette expérience reste utile pour le mémoire.
+Elle montre que la combinaison naïve des deux critères ne suffit pas à corriger le biais de généralisation.
+Le projet progresse donc de façon scientifique : une limite est observée, une méthode est proposée, puis l'évaluation montre ce qu'elle apporte réellement.
+
+La suite la plus intéressante serait de travailler directement sur l'apprentissage des représentations, par exemple avec une méthode qui réduit la dépendance au `product_type`, plutôt qu'une règle de rejet ajoutée après l'entraînement.
+
 ## Limites à garder en tête
 
 Ces résultats dépendent du dataset Freshness44 et du split choisi.
