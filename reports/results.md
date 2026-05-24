@@ -220,6 +220,66 @@ Cette expérience est donc utile, même si elle ne résout pas totalement le pro
 Elle montre que la confiance sigmoid aide à rejeter certaines prédictions risquées, mais qu'elle reste insuffisante pour garantir une bonne calibration sur des catégories jamais vues.
 Cela motive une méthode plus avancée pour la suite, par exemple un modèle moins dépendant du `product_type` ou une estimation d'incertitude basée sur les représentations internes du CNN.
 
+## Incertitude par distance de features
+
+Une deuxième méthode d'incertitude a été testée.
+Elle n'utilise pas seulement le score sigmoid final.
+Elle utilise une représentation interne du CNN, extraite avant la sortie finale.
+
+Le principe est le suivant :
+
+- extraire les features internes des images ;
+- calculer un prototype `fresh` et un prototype `rotten` à partir du `training_set` ;
+- mesurer la distance entre chaque image et le prototype de sa classe prédite ;
+- rejeter comme `uncertain` les images trop éloignées.
+
+Cette méthode est directement liée au biais observé.
+Si une catégorie non vue est mal représentée dans l'espace appris par le CNN, ses images peuvent être plus éloignées des prototypes du train.
+
+Résultats globaux :
+
+| protocole | seuil | baseline accuracy | accepted accuracy | coverage | uncertain rate | uncertain error rate |
+|---|---:|---:|---:|---:|---:|---:|
+| standard_split | 4.9753 | 0.8969 | 0.9151 | 0.5009 | 0.4991 | 0.1214 |
+| unseen_category_split | 4.7997 | 0.6706 | 0.6992 | 0.4526 | 0.5474 | 0.3530 |
+
+La méthode améliore légèrement l'accuracy des images acceptées, mais elle rejette beaucoup d'images.
+Sur le `standard_split`, elle accepte environ 50 % des images.
+Sur le `unseen_category_split`, elle accepte environ 45 % des images.
+
+Le seuil n'atteint pas l'objectif d'accuracy de 0.95 avec la couverture minimale demandée.
+Le script choisit donc le meilleur compromis disponible.
+Ce résultat est important : la distance de features seule ne suffit pas, dans cette version, à produire une règle d'incertitude meilleure que le seuil sigmoid.
+
+Comparaison avec l'incertitude sigmoid :
+
+| méthode | protocole | accepted accuracy | coverage | uncertain rate |
+|---|---|---:|---:|---:|
+| sigmoid confidence | standard_split | 0.9555 | 0.7897 | 0.2103 |
+| feature distance | standard_split | 0.9151 | 0.5009 | 0.4991 |
+| sigmoid confidence | unseen_category_split | 0.7398 | 0.7234 | 0.2766 |
+| feature distance | unseen_category_split | 0.6992 | 0.4526 | 0.5474 |
+
+Dans cette expérience, le seuil sur la confiance sigmoid est meilleur.
+Il garde plus d'images et obtient une meilleure accuracy sur les prédictions acceptées.
+La distance de features reste utile comme analyse complémentaire, car elle montre que la représentation interne du CNN ne sépare pas encore assez bien les cas fiables et les cas risqués.
+
+Résultats sur les catégories non vues :
+
+| product_type | baseline accuracy | accepted accuracy | coverage | uncertain rate | uncertain error rate |
+|---|---:|---:|---:|---:|---:|
+| apple | 0.7663 | 0.8966 | 0.5153 | 0.4847 | 0.3723 |
+| banana | 0.6205 | 0.4712 | 0.4463 | 0.5537 | 0.2591 |
+| tomato | 0.5838 | 0.6594 | 0.3529 | 0.6471 | 0.4574 |
+
+La méthode fonctionne mieux sur `apple` et un peu sur `tomato`.
+Elle échoue sur `banana`, où l'accuracy des images acceptées devient plus faible que la baseline.
+Cela suggère que la distance aux prototypes ne capture pas toujours la difficulté réelle de la prédiction.
+
+Ce résultat n'est pas un échec.
+Il donne une conclusion exploitable : une méthode de rejet basée uniquement sur la distance aux prototypes est trop simple.
+Pour aller plus loin, il faudrait tester une méthode plus robuste, par exemple une combinaison entre confiance sigmoid et distance de features, ou un apprentissage qui cherche explicitement à réduire la dépendance au `product_type`.
+
 ## Limites à garder en tête
 
 Ces résultats dépendent du dataset Freshness44 et du split choisi.
