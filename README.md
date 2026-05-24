@@ -139,10 +139,37 @@ reports/unseen_category_metrics_by_product_type.csv
 
 Le notebook `notebooks/02_generalization_test.ipynb` guide cette analyse.
 
-## Plateforme web prévue
+## Incertitude calibrée
 
-Une plateforme web simple sera ajoutée dans le dossier `web/`.
-Elle devra permettre à l'utilisateur de prendre une photo ou d'importer une image.
+Le `unseen_category_split` met en évidence une limite du modèle : la performance baisse quand certaines catégories de produits sont absentes de l'entraînement.
+
+Pour répondre à cette limite, le projet ajoute une première méthode d'incertitude.
+Le modèle ne prédit `fresh` ou `rotten` que si son score de confiance dépasse un seuil calibré sur le `validation_set`.
+Sinon, la prédiction est considérée comme `uncertain`.
+
+Cette classe `uncertain` n'est pas entraînée.
+Elle sert à limiter les prédictions risquées.
+
+L'analyse se lance avec :
+
+```bash
+python src/uncertainty.py --protocol both
+```
+
+Elle génère notamment :
+
+```text
+reports/uncertainty_metrics.csv
+reports/uncertainty_by_product_type.csv
+reports/uncertainty_calibration_grid.csv
+```
+
+Le notebook `notebooks/03_uncertainty_analysis.ipynb` guide cette analyse.
+
+## Plateforme web
+
+Une première plateforme web statique est disponible dans le dossier `web/`.
+Elle permet à l'utilisateur de prendre une photo ou d'importer une image.
 
 La plateforme affichera :
 
@@ -152,6 +179,20 @@ La plateforme affichera :
 
 La classe `uncertain` ne sera pas une vraie classe entraînée.
 Elle sera seulement une règle d'interprétation basée sur le score de confiance.
+
+L'inférence est prévue côté navigateur avec TensorFlow.js.
+Le modèle Keras doit d'abord être converti et placé dans :
+
+```text
+web/model/
+```
+
+Pour tester l'interface en local :
+
+```bash
+cd web
+python -m http.server 8000
+```
 
 ## Limites
 

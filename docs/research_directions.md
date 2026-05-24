@@ -1,0 +1,56 @@
+# Pistes de recherche
+
+Ce document garde des idées pour renforcer la contribution scientifique du projet.
+
+## Point de départ
+
+Les premiers résultats montrent une limite importante.
+Le modèle obtient de bons résultats avec le `standard_split`, mais sa performance baisse sur le `unseen_category_split`.
+
+Cela suggère que le CNN apprend une partie des indices de fraîcheur, mais aussi des indices liés aux catégories vues pendant l'entraînement.
+
+## Contribution courte terme
+
+La première contribution ajoutée au projet est l'incertitude calibrée.
+
+Idée :
+
+- calibrer un seuil de confiance sur le `validation_set` ;
+- accepter seulement les prédictions assez confiantes ;
+- classer les autres images comme `uncertain` ;
+- comparer le comportement sur `standard_split` et `unseen_category_split`.
+
+Cette méthode ne change pas le modèle.
+Elle teste si le système peut éviter certaines prédictions risquées.
+
+## Piste plus avancée
+
+Une piste plus ambitieuse serait de construire un modèle moins dépendant du `product_type`.
+
+Idée possible :
+
+- un backbone CNN commun ;
+- une tête pour prédire `fresh` / `rotten` ;
+- une tête adversariale liée au `product_type`.
+
+L'objectif serait d'apprendre des représentations utiles pour la fraîcheur, mais moins informatives sur le type du produit.
+
+Cette idée inverse partiellement la logique du papier NoisyViT.
+Le papier prédit à la fois la fraîcheur et le type.
+Ici, l'objectif serait de limiter la dépendance au type pour mieux généraliser à des catégories non vues.
+
+## Ce qu'il faudrait évaluer
+
+Pour que cette piste soit défendable, il faudrait comparer :
+
+- baseline CNN ;
+- baseline CNN avec incertitude calibrée ;
+- modèle plus robuste ou plus invariant au `product_type`.
+
+Les métriques importantes seraient :
+
+- accuracy, precision, recall, F1-score ;
+- résultats par `product_type` ;
+- performance sur catégories non vues ;
+- taux d'images rejetées comme `uncertain` ;
+- comparaison entre images acceptées et images rejetées.

@@ -39,6 +39,16 @@ generalization:
   unseen_category_metrics_filename: unseen_category_metrics_by_product_type.csv
   comparison_filename: evaluation_comparison.csv
 
+uncertainty:
+  target_accuracy: 0.90
+  minimum_coverage: 0.50
+  threshold_grid_start: 0.50
+  threshold_grid_end: 0.99
+  threshold_step: 0.01
+  metrics_filename: uncertainty_metrics.csv
+  calibration_grid_filename: uncertainty_calibration_grid.csv
+  product_type_metrics_filename: uncertainty_by_product_type.csv
+
 web_app:
   confidence_thresholds:
     confident: 0.80

@@ -26,4 +26,10 @@ Après évaluation sur catégories non vues, les scripts peuvent générer :
 - `unseen_category_metrics_by_product_type.csv` : métriques par type de produit ;
 - `evaluation_comparison.csv` : comparaison entre `standard_split` et `unseen_category_split`.
 
+Après analyse de l'incertitude calibrée, le script `src/uncertainty.py` peut générer :
+
+- `uncertainty_metrics.csv` : comparaison entre baseline et prédictions acceptées ;
+- `uncertainty_by_product_type.csv` : métriques d'incertitude par type de produit ;
+- `uncertainty_calibration_grid.csv` : seuils testés sur validation.
+
 Le fichier `results.md` résume les résultats réels déjà obtenus.
