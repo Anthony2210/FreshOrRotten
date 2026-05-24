@@ -198,6 +198,35 @@ reports/feature_distance_calibration_grid.csv
 
 Le notebook `notebooks/04_feature_distance_uncertainty.ipynb` guide cette analyse.
 
+## Incertitude hybride
+
+Une troisième analyse combine les deux signaux précédents :
+
+- le score de confiance sigmoid ;
+- la distance aux prototypes dans l'espace de features du CNN.
+
+Une prédiction est acceptée seulement si le modèle est assez confiant et si l'image reste proche des représentations apprises pendant l'entraînement.
+Sinon, elle est marquée comme `uncertain`.
+
+Cette méthode répond directement à la limite observée sur les catégories non vues.
+Elle teste si une combinaison simple permet de mieux isoler les prédictions risquées.
+
+L'analyse se lance avec :
+
+```bash
+python src/hybrid_uncertainty.py --protocol both
+```
+
+Elle génère :
+
+```text
+reports/hybrid_uncertainty_metrics.csv
+reports/hybrid_uncertainty_by_product_type.csv
+reports/hybrid_uncertainty_calibration_grid.csv
+```
+
+Le notebook `notebooks/05_hybrid_uncertainty.ipynb` guide cette analyse.
+
 ## Plateforme web
 
 Une première plateforme web statique est disponible dans le dossier `web/`.

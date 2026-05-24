@@ -9,7 +9,8 @@ Organisation :
 - `evaluate.py` : évaluation du meilleur modèle sur le `test_set` ;
 - `split_strategy.py` : création du `standard_split` et du `unseen_category_split` ;
 - `uncertainty.py` : analyse d'incertitude avec seuil sur la confiance sigmoid ;
-- `feature_distance_uncertainty.py` : analyse d'incertitude avec distance dans l'espace de features.
+- `feature_distance_uncertainty.py` : analyse d'incertitude avec distance dans l'espace de features ;
+- `hybrid_uncertainty.py` : analyse d'incertitude combinant confiance sigmoid et distance de features.
 
 Scripts prévus plus tard :
 
@@ -55,6 +56,12 @@ Commande d'analyse d'incertitude par distance de features :
 python src/feature_distance_uncertainty.py --protocol both
 ```
 
+Commande d'analyse d'incertitude hybride :
+
+```bash
+python src/hybrid_uncertainty.py --protocol both
+```
+
 Fichiers générés après entraînement :
 
 - `models/baseline_model.keras` ;
@@ -87,4 +94,7 @@ Fichiers générés après analyse d'incertitude :
 - `reports/uncertainty_calibration_grid.csv` ;
 - `reports/feature_distance_metrics.csv` ;
 - `reports/feature_distance_by_product_type.csv` ;
-- `reports/feature_distance_calibration_grid.csv`.
+- `reports/feature_distance_calibration_grid.csv` ;
+- `reports/hybrid_uncertainty_metrics.csv` ;
+- `reports/hybrid_uncertainty_by_product_type.csv` ;
+- `reports/hybrid_uncertainty_calibration_grid.csv`.

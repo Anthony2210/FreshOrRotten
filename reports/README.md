@@ -38,4 +38,10 @@ Après analyse de l'incertitude par distance de features, le script `src/feature
 - `feature_distance_by_product_type.csv` : métriques par type de produit ;
 - `feature_distance_calibration_grid.csv` : seuils de distance testés sur validation.
 
+Après analyse de l'incertitude hybride, le script `src/hybrid_uncertainty.py` peut générer :
+
+- `hybrid_uncertainty_metrics.csv` : comparaison entre baseline et prédictions acceptées par la règle hybride ;
+- `hybrid_uncertainty_by_product_type.csv` : métriques hybrides par type de produit ;
+- `hybrid_uncertainty_calibration_grid.csv` : combinaisons de seuils testées sur validation.
+
 Le fichier `results.md` résume les résultats réels déjà obtenus.

@@ -43,6 +43,21 @@ Elle vérifie aussi si l'image ressemble, dans l'espace appris par le CNN, aux e
 Pour le mémoire, cette méthode peut être présentée comme une proposition personnelle raisonnable :
 elle part du constat que le modèle généralise mal à certains `product_type` non vus, puis propose une règle de rejet basée sur la représentation interne du modèle.
 
+## Contribution suivante : règle hybride
+
+Les premiers résultats montrent que la confiance sigmoid est plus efficace que la distance de features seule.
+La distance de features reste intéressante, mais elle rejette parfois beaucoup d'images sans isoler assez bien les erreurs.
+
+La suite logique est donc une règle hybride :
+
+- accepter une image seulement si le score sigmoid est assez confiant ;
+- vérifier en plus que l'image reste proche des prototypes appris dans l'espace de features ;
+- calibrer les deux seuils sur le `validation_set` ;
+- comparer le compromis accuracy / coverage sur `standard_split` et `unseen_category_split`.
+
+Cette piste est plus défendable qu'un simple seuil fixe.
+Elle part d'un biais observé, combine deux mesures complémentaires, puis évalue si cette combinaison améliore le rejet des prédictions risquées.
+
 ## Piste plus avancée
 
 Une piste plus ambitieuse serait de construire un modèle moins dépendant du `product_type`.
