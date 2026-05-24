@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FreshOrRotten</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="brand-header">
+        <h1>
+          <span class="fresh-word">Fresh</span><span class="or-word">Or</span><span class="rotten-word">Rotten</span>
+        </h1>
+        <div class="title-rule" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </header>
+
+      <section class="workspace" aria-label="Analyse d'image">
+        <article class="panel photo-panel">
+          <div class="panel-heading">
+            <span class="section-label">01</span>
+            <h2>Photo du produit</h2>
+          </div>
+
+          <div class="preview-frame">
+            <img id="image-preview" alt="Aperçu de la photo sélectionnée" hidden />
+            <div id="empty-preview" class="empty-preview">
+              <strong>Ajoute une photo</strong>
+              <span>Un cadrage simple, une lumière correcte, puis on laisse le CNN lire l'image.</span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <label class="secondary-button" for="image-input">Choisir une image</label>
+            <button id="analyze-button" class="primary-button" type="button" disabled>
+              Analyser
+            </button>
+          </div>
+
+          <input id="image-input" class="file-input" type="file" accept="image/*" capture="environment" />
+          <p id="model-status" class="technical-note" aria-live="polite"></p>
+        </article>
+
+        <article class="panel result-panel" aria-live="polite">
+          <div class="panel-heading">
+            <span class="section-label">02</span>
+            <h2>Lecture du modèle</h2>
+          </div>
+
+          <div id="result-box" class="result-box">
+            <p class="result-label">En attente.</p>
+            <p class="result-message">Ajoute une photo pour lancer l'analyse.</p>
+          </div>
+
+          <div class="confidence-meter" aria-hidden="true">
+            <span id="confidence-bar"></span>
+          </div>
+
+          <dl class="score-list">
+            <div>
+              <dt>Prédiction</dt>
+              <dd id="prediction-value">-</dd>
+            </div>
+            <div>
+              <dt>Confiance</dt>
+              <dd id="confidence-value">-</dd>
+            </div>
+          </dl>
+
+          <p class="result-footnote">
+            Le doute n'est pas une classe apprise. C'est une règle liée au score de confiance.
+          </p>
+        </article>
+      </section>
+
+      <footer class="app-note">
+        Démonstration pédagogique. Pas un outil sanitaire ou professionnel.
+      </footer>
+    </main>
+  </body>
+</html>

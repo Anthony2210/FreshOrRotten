@@ -26,6 +26,9 @@ checkpoints/
 *.h5
 *.hdf5
 *.keras
+web/model/*
+!web/model/.gitkeep
+!web/model/README.md
 
 # Fichiers système
 .DS_Store
