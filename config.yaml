@@ -40,7 +40,7 @@ generalization:
   comparison_filename: evaluation_comparison.csv
 
 uncertainty:
-  target_accuracy: 0.90
+  target_accuracy: 0.95
   minimum_coverage: 0.50
   threshold_grid_start: 0.50
   threshold_grid_end: 0.99
@@ -48,6 +48,14 @@ uncertainty:
   metrics_filename: uncertainty_metrics.csv
   calibration_grid_filename: uncertainty_calibration_grid.csv
   product_type_metrics_filename: uncertainty_by_product_type.csv
+
+feature_distance_uncertainty:
+  target_accuracy: 0.95
+  minimum_coverage: 0.50
+  feature_layer_index: -3
+  metrics_filename: feature_distance_metrics.csv
+  calibration_grid_filename: feature_distance_calibration_grid.csv
+  product_type_metrics_filename: feature_distance_by_product_type.csv
 
 web_app:
   confidence_thresholds:

@@ -180,6 +180,46 @@ Cela explique la précision plus faible sur le protocole unseen.
 Cette observation suggère que la baseline apprend bien des indices visuels de fraîcheur, mais aussi des indices propres aux catégories vues.
 Le `unseen_category_split` est donc utile pour mesurer une généralisation plus difficile et plus proche d'un usage réel.
 
+## Incertitude calibrée
+
+Pour limiter les prédictions risquées, une règle `uncertain` a été ajoutée après le modèle.
+Cette règle n'est pas une nouvelle classe entraînée.
+Elle utilise le score de confiance du modèle.
+
+Le seuil est calibré sur le `validation_set` avec un objectif d'accuracy de 0.95 sur les prédictions acceptées.
+Les images dont la confiance est inférieure au seuil sont rejetées comme `uncertain`.
+
+Résultats globaux :
+
+| protocole | seuil | baseline accuracy | accepted accuracy | coverage | uncertain rate | uncertain error rate |
+|---|---:|---:|---:|---:|---:|---:|
+| standard_split | 0.75 | 0.8969 | 0.9555 | 0.7897 | 0.2103 | 0.3233 |
+| unseen_category_split | 0.77 | 0.6706 | 0.7398 | 0.7234 | 0.2766 | 0.5102 |
+
+Sur le `standard_split`, la règle améliore nettement l'accuracy des images acceptées.
+Elle rejette environ 21 % des images, et les prédictions conservées atteignent une accuracy de 0.9555.
+
+Sur le `unseen_category_split`, l'amélioration existe aussi, mais elle reste limitée.
+L'accuracy des images acceptées passe de 0.6706 à 0.7398, avec environ 28 % d'images rejetées comme `uncertain`.
+Le taux d'erreur parmi les images rejetées atteint 0.5102.
+Cela montre que la règle capture une partie des cas difficiles.
+
+Cependant, le seuil calibré sur validation n'atteint pas l'objectif de 0.95 sur les catégories non vues.
+La calibration fonctionne mieux quand les catégories de test ressemblent aux catégories vues.
+Elle se transfère moins bien à `apple`, `banana` et `tomato`, qui sont absents de l'entraînement.
+
+Résultats par catégorie non vue :
+
+| product_type | baseline accuracy | accepted accuracy | coverage | uncertain rate | uncertain error rate |
+|---|---:|---:|---:|---:|---:|
+| apple | 0.7663 | 0.8528 | 0.6906 | 0.3094 | 0.4268 |
+| banana | 0.6205 | 0.6469 | 0.8212 | 0.1788 | 0.5004 |
+| tomato | 0.5838 | 0.7179 | 0.6230 | 0.3770 | 0.6378 |
+
+Cette expérience est donc utile, même si elle ne résout pas totalement le problème.
+Elle montre que la confiance sigmoid aide à rejeter certaines prédictions risquées, mais qu'elle reste insuffisante pour garantir une bonne calibration sur des catégories jamais vues.
+Cela motive une méthode plus avancée pour la suite, par exemple un modèle moins dépendant du `product_type` ou une estimation d'incertitude basée sur les représentations internes du CNN.
+
 ## Limites à garder en tête
 
 Ces résultats dépendent du dataset Freshness44 et du split choisi.

@@ -32,4 +32,10 @@ Après analyse de l'incertitude calibrée, le script `src/uncertainty.py` peut g
 - `uncertainty_by_product_type.csv` : métriques d'incertitude par type de produit ;
 - `uncertainty_calibration_grid.csv` : seuils testés sur validation.
 
+Après analyse de l'incertitude par distance de features, le script `src/feature_distance_uncertainty.py` peut générer :
+
+- `feature_distance_metrics.csv` : comparaison entre baseline et prédictions acceptées par distance ;
+- `feature_distance_by_product_type.csv` : métriques par type de produit ;
+- `feature_distance_calibration_grid.csv` : seuils de distance testés sur validation.
+
 Le fichier `results.md` résume les résultats réels déjà obtenus.

@@ -22,6 +22,26 @@ Idée :
 
 Cette méthode ne change pas le modèle.
 Elle teste si le système peut éviter certaines prédictions risquées.
+Le seuil doit être assez exigeant pour produire une vraie classe `uncertain`.
+Un seuil trop faible peut accepter toutes les images et masquer les limites du modèle.
+
+## Contribution intermédiaire : distance de features
+
+Une deuxième contribution plus liée au modèle est l'incertitude par distance de features.
+
+Idée :
+
+- utiliser le CNN entraîné comme extracteur de représentations ;
+- calculer un prototype `fresh` et un prototype `rotten` dans l'espace interne du modèle ;
+- mesurer si une image de test est proche du prototype de sa classe prédite ;
+- rejeter l'image comme `uncertain` si elle est trop éloignée.
+
+Cette méthode répond mieux au biais identifié.
+Elle ne regarde pas seulement le score sigmoid final.
+Elle vérifie aussi si l'image ressemble, dans l'espace appris par le CNN, aux exemples vus pendant l'entraînement.
+
+Pour le mémoire, cette méthode peut être présentée comme une proposition personnelle raisonnable :
+elle part du constat que le modèle généralise mal à certains `product_type` non vus, puis propose une règle de rejet basée sur la représentation interne du modèle.
 
 ## Piste plus avancée
 

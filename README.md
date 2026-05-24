@@ -149,6 +149,7 @@ Sinon, la prédiction est considérée comme `uncertain`.
 
 Cette classe `uncertain` n'est pas entraînée.
 Elle sert à limiter les prédictions risquées.
+Le seuil est calibré pour viser une accuracy plus élevée sur les prédictions acceptées.
 
 L'analyse se lance avec :
 
@@ -165,6 +166,37 @@ reports/uncertainty_calibration_grid.csv
 ```
 
 Le notebook `notebooks/03_uncertainty_analysis.ipynb` guide cette analyse.
+
+## Incertitude par distance de features
+
+Une deuxième méthode d'incertitude est prévue pour aller plus loin que le score sigmoid.
+Elle utilise les représentations internes du CNN.
+
+Le principe est le suivant :
+
+- extraire les features produites par une couche interne du modèle ;
+- calculer un prototype `fresh` et un prototype `rotten` à partir du `training_set` ;
+- mesurer la distance entre une image de test et le prototype de sa classe prédite ;
+- rejeter la prédiction comme `uncertain` si cette distance est trop grande.
+
+Cette approche teste une idée importante : une image peut avoir un score sigmoid élevé tout en étant éloignée des exemples vus pendant l'entraînement.
+Elle est donc utile pour analyser les catégories non vues.
+
+L'analyse se lance avec :
+
+```bash
+python src/feature_distance_uncertainty.py --protocol both
+```
+
+Elle génère :
+
+```text
+reports/feature_distance_metrics.csv
+reports/feature_distance_by_product_type.csv
+reports/feature_distance_calibration_grid.csv
+```
+
+Le notebook `notebooks/04_feature_distance_uncertainty.ipynb` guide cette analyse.
 
 ## Plateforme web
 
