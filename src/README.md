@@ -10,7 +10,8 @@ Organisation :
 - `split_strategy.py` : création du `standard_split` et du `unseen_category_split` ;
 - `uncertainty.py` : analyse d'incertitude avec seuil sur la confiance sigmoid ;
 - `feature_distance_uncertainty.py` : analyse d'incertitude avec distance dans l'espace de features ;
-- `hybrid_uncertainty.py` : analyse d'incertitude combinant confiance sigmoid et distance de features.
+- `hybrid_uncertainty.py` : analyse d'incertitude combinant confiance sigmoid et distance de features ;
+- `feature_product_type_analysis.py` : analyse du biais `product_type` dans les features du CNN.
 
 Scripts prévus plus tard :
 
@@ -62,6 +63,12 @@ Commande d'analyse d'incertitude hybride :
 python src/hybrid_uncertainty.py --protocol both
 ```
 
+Commande d'analyse du biais `product_type` :
+
+```bash
+python src/feature_product_type_analysis.py
+```
+
 Fichiers générés après entraînement :
 
 - `models/baseline_model.keras` ;
@@ -98,3 +105,9 @@ Fichiers générés après analyse d'incertitude :
 - `reports/hybrid_uncertainty_metrics.csv` ;
 - `reports/hybrid_uncertainty_by_product_type.csv` ;
 - `reports/hybrid_uncertainty_calibration_grid.csv`.
+
+Fichiers générés après analyse du biais `product_type` :
+
+- `reports/product_type_probe_metrics.csv` ;
+- `reports/product_type_probe_by_product_type.csv` ;
+- `reports/product_type_probe_confusion_matrix.csv`.

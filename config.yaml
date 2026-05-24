@@ -71,6 +71,12 @@ hybrid_uncertainty:
   calibration_grid_filename: hybrid_uncertainty_calibration_grid.csv
   product_type_metrics_filename: hybrid_uncertainty_by_product_type.csv
 
+product_type_bias_analysis:
+  feature_layer_index: -3
+  metrics_filename: product_type_probe_metrics.csv
+  product_type_metrics_filename: product_type_probe_by_product_type.csv
+  confusion_matrix_filename: product_type_probe_confusion_matrix.csv
+
 web_app:
   confidence_thresholds:
     confident: 0.80

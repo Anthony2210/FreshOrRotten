@@ -58,6 +58,23 @@ La suite logique est donc une règle hybride :
 Cette piste est plus défendable qu'un simple seuil fixe.
 Elle part d'un biais observé, combine deux mesures complémentaires, puis évalue si cette combinaison améliore le rejet des prédictions risquées.
 
+## Analyse du biais product_type
+
+Une autre analyse importante consiste à tester ce que le CNN encode dans ses features internes.
+
+Méthode :
+
+- garder le CNN entraîné pour `fresh` / `rotten` ;
+- extraire une couche interne du modèle ;
+- entraîner un classifieur simple pour prédire `product_type` à partir de ces features ;
+- comparer sa performance à une baseline qui prédit toujours le type majoritaire.
+
+Si ce classifieur prédit bien `product_type`, cela montre que les représentations du CNN contiennent fortement l'information de catégorie.
+Ce résultat soutient l'idée que le modèle peut dépendre des produits vus pendant l'entraînement.
+
+Cette analyse fait le lien avec la baisse de performance sur le `unseen_category_split`.
+Elle donne une preuve plus directe du biais, au lieu de seulement constater une baisse d'accuracy.
+
 ## Piste plus avancée
 
 Une piste plus ambitieuse serait de construire un modèle moins dépendant du `product_type`.

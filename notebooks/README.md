@@ -9,6 +9,7 @@ Notebooks :
 - `03_uncertainty_analysis.ipynb` : évaluer une règle d'incertitude calibrée sur validation ;
 - `04_feature_distance_uncertainty.ipynb` : évaluer une incertitude basée sur les features internes du CNN ;
 - `05_hybrid_uncertainty.ipynb` : combiner confiance sigmoid et distance de features ;
+- `06_product_type_bias_analysis.ipynb` : tester si les features du CNN encodent le type du produit ;
 - `baseline_colab.ipynb` : exécuter l'entraînement et les évaluations sur Google Colab.
 
 Le notebook `01_data_exploration.ipynb` sauvegarde les figures dans :
@@ -34,5 +35,8 @@ Cette analyse sert à vérifier si les catégories non vues sont plus éloignée
 
 Le notebook `05_hybrid_uncertainty.ipynb` teste une règle plus stricte.
 Une image est acceptée seulement si le score sigmoid est assez confiant et si la distance de features reste faible.
+
+Le notebook `06_product_type_bias_analysis.ipynb` entraîne un petit classifieur sur les features internes du CNN pour prédire `product_type`.
+Cette analyse aide à mesurer si le modèle encode fortement les catégories vues pendant l'entraînement.
 
 Le notebook `baseline_colab.ipynb` prépare Colab, copie le dataset depuis Google Drive vers le disque local, lance le `standard_split`, puis le `unseen_category_split`.

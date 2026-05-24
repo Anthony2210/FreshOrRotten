@@ -44,4 +44,10 @@ Après analyse de l'incertitude hybride, le script `src/hybrid_uncertainty.py` p
 - `hybrid_uncertainty_by_product_type.csv` : métriques hybrides par type de produit ;
 - `hybrid_uncertainty_calibration_grid.csv` : combinaisons de seuils testées sur validation.
 
+Après analyse du biais `product_type`, le script `src/feature_product_type_analysis.py` peut générer :
+
+- `product_type_probe_metrics.csv` : métriques globales du classifieur de `product_type` ;
+- `product_type_probe_by_product_type.csv` : métriques détaillées par type de produit ;
+- `product_type_probe_confusion_matrix.csv` : matrice de confusion entre types de produits.
+
 Le fichier `results.md` résume les résultats réels déjà obtenus.

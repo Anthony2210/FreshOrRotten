@@ -227,6 +227,35 @@ reports/hybrid_uncertainty_calibration_grid.csv
 
 Le notebook `notebooks/05_hybrid_uncertainty.ipynb` guide cette analyse.
 
+## Analyse du biais product_type
+
+Une analyse supplémentaire vérifie si les features internes du CNN contiennent beaucoup d'information sur le `product_type`.
+
+Le CNN reste gelé.
+On extrait ses représentations internes, puis on entraîne un classifieur simple pour prédire le type du produit à partir de ces features.
+
+Cette méthode sert à tester l'hypothèse suivante :
+
+> si le `product_type` est facilement prédictible depuis les features du CNN, alors le modèle encode fortement les catégories de produits.
+
+Cette analyse aide à expliquer pourquoi le modèle peut mieux fonctionner sur le `standard_split` que sur le `unseen_category_split`.
+
+L'analyse se lance avec :
+
+```bash
+python src/feature_product_type_analysis.py
+```
+
+Elle génère :
+
+```text
+reports/product_type_probe_metrics.csv
+reports/product_type_probe_by_product_type.csv
+reports/product_type_probe_confusion_matrix.csv
+```
+
+Le notebook `notebooks/06_product_type_bias_analysis.ipynb` guide cette analyse.
+
 ## Plateforme web
 
 Une première plateforme web statique est disponible dans le dossier `web/`.
