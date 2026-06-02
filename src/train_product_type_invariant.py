@@ -217,12 +217,14 @@ def train_product_type_invariant_model(config, split_name="standard", unseen_cat
     callbacks = [
         tf.keras.callbacks.EarlyStopping(
             monitor="val_freshness_loss",
+            mode="min",
             patience=early_stopping_patience,
             restore_best_weights=True,
         ),
         tf.keras.callbacks.ModelCheckpoint(
             filepath=str(model_path),
             monitor="val_freshness_loss",
+            mode="min",
             save_best_only=True,
         ),
     ]
