@@ -19,6 +19,7 @@ memoire/
 # Données locales
 data/raw/
 data/processed/
+data/*.zip
 Freshness44/
 
 # Modèles et checkpoints volumineux
