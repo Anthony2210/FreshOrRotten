@@ -10,6 +10,30 @@ Figures générées par `notebooks/01_data_exploration.ipynb` :
 - `image_count_by_product_type.png` ;
 - `image_count_by_product_type_and_freshness.png`.
 
+Figures générées par `notebooks/07_feature_space_visualization.ipynb` :
+
+- `comparison_standard_vs_unseen.png` ;
+- `unseen_metrics_by_product_type.png` ;
+- `training_curves_standard_split.png` ;
+- `training_curves_unseen_category_split.png` ;
+- `confusion_matrix_standard_split.png` ;
+- `confusion_matrix_unseen_category_split.png` ;
+- `uncertainty_methods_standard.png` ;
+- `uncertainty_methods_unseen.png` ;
+- `calibration_tradeoff_sigmoid_0.95.png` ;
+- `calibration_tradeoff_feature_distance.png` ;
+- `calibration_tradeoff_hybrid.png` ;
+- `product_type_probe_global_metrics.png` ;
+- `product_type_probe_f1_by_product.png` ;
+- `feature_pca_by_freshness.png` ;
+- `feature_pca_by_product_type.png` ;
+- `feature_pca_by_prediction_correctness.png` ;
+- `feature_tsne_by_freshness.png` ;
+- `feature_tsne_by_product_type.png` ;
+- `feature_tsne_by_prediction_correctness.png`.
+
+Le notebook sauvegarde aussi `feature_space_projection.csv`, qui contient les coordonnées PCA/t-SNE et les métadonnées des images visualisées.
+
 Après entraînement de la baseline CNN, les scripts peuvent générer :
 
 - `training_history.csv` : historique `loss`, `accuracy`, `precision` et `recall` ;

@@ -24,6 +24,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.append(str(SCRIPT_DIR))
 
 from feature_distance_uncertainty import build_feature_extractor
+from model import GradientReversal
 from split_strategy import load_split_file
 from train import create_image_dataset, get_image_size
 from uncertainty import get_dataset_path, get_protocol_settings, get_reports_dir, load_config
@@ -144,15 +145,43 @@ def build_confusion_matrix_df(product_types, predictions):
     return confusion_df
 
 
-def run_product_type_analysis(config):
+def resolve_project_path(path):
+    """Retourne un chemin absolu depuis la racine du projet."""
+    if path is None:
+        return None
+
+    path = Path(path)
+    if path.is_absolute():
+        return path
+
+    return PROJECT_ROOT / path
+
+
+def build_feature_extractor_from_settings(model, layer_index, layer_name=None):
+    """Construit l'extracteur de features depuis un nom ou un index de couche."""
+    if layer_name:
+        try:
+            feature_layer = model.get_layer(layer_name)
+        except ValueError as error:
+            raise ValueError(f"Couche introuvable avec layer_name={layer_name}.") from error
+
+        return tf.keras.Model(inputs=model.inputs, outputs=feature_layer.output)
+
+    return build_feature_extractor(model, layer_index)
+
+
+def run_product_type_analysis(config, model_path=None, output_dir=None, feature_layer_name=None):
     """Lance l'analyse de dépendance au product_type."""
     training_config = config["training"]
     analysis_config = config.get("product_type_bias_analysis", {})
-    reports_dir = get_reports_dir(config)
+    reports_dir = resolve_project_path(output_dir) or get_reports_dir(config)
     reports_dir.mkdir(parents=True, exist_ok=True)
 
-    protocol_settings = get_protocol_settings(config, protocol="standard")
-    model_path = protocol_settings["model_path"]
+    if model_path is None:
+        protocol_settings = get_protocol_settings(config, protocol="standard")
+        model_path = protocol_settings["model_path"]
+    else:
+        model_path = resolve_project_path(model_path)
 
     if not model_path.exists():
         raise FileNotFoundError(f"Modèle introuvable : {model_path}")
@@ -163,8 +192,11 @@ def run_product_type_analysis(config):
     layer_index = int(analysis_config.get("feature_layer_index", -3))
 
     training_set, validation_set, test_set = load_standard_sets(config)
-    model = tf.keras.models.load_model(model_path)
-    feature_extractor = build_feature_extractor(model, layer_index)
+    model = tf.keras.models.load_model(
+        model_path,
+        custom_objects={"GradientReversal": GradientReversal},
+    )
+    feature_extractor = build_feature_extractor_from_settings(model, layer_index, feature_layer_name)
 
     print("Extraction des features : train")
     training_features, training_product_types = collect_features(
@@ -254,10 +286,33 @@ def parse_args():
         default=PROJECT_ROOT / "config.yaml",
         help="Chemin vers config.yaml.",
     )
+    parser.add_argument(
+        "--model-path",
+        type=Path,
+        default=None,
+        help="Modèle à analyser. Par défaut, utilise la baseline standard.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=None,
+        help="Dossier où sauvegarder les CSV.",
+    )
+    parser.add_argument(
+        "--feature-layer-name",
+        type=str,
+        default=None,
+        help="Nom de la couche de features à analyser.",
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
     project_config = load_config(args.config)
-    run_product_type_analysis(project_config)
+    run_product_type_analysis(
+        project_config,
+        model_path=args.model_path,
+        output_dir=args.output_dir,
+        feature_layer_name=args.feature_layer_name,
+    )

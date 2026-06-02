@@ -75,6 +75,20 @@ Ce résultat soutient l'idée que le modèle peut dépendre des produits vus pen
 Cette analyse fait le lien avec la baisse de performance sur le `unseen_category_split`.
 Elle donne une preuve plus directe du biais, au lieu de seulement constater une baisse d'accuracy.
 
+## Visualisation des représentations
+
+Pour rendre l'analyse plus lisible dans le mémoire, une visualisation PCA/t-SNE des features internes est utile.
+
+Idée :
+
+- extraire les features du CNN sur le `test_set` ;
+- projeter ces features en deux dimensions avec PCA ;
+- projeter ces features en deux dimensions avec t-SNE ;
+- colorer les points par `freshness`, puis par `product_type`, puis par erreur de prédiction.
+
+Si les points se regroupent surtout par `product_type`, cela renforce l'hypothèse d'une dépendance aux catégories.
+Si les erreurs se concentrent dans certaines zones, cela peut aider à expliquer les limites du modèle.
+
 ## Piste plus avancée
 
 Une piste plus ambitieuse serait de construire un modèle moins dépendant du `product_type`.

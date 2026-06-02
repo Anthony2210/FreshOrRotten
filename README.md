@@ -256,6 +256,28 @@ reports/product_type_probe_confusion_matrix.csv
 
 Le notebook `notebooks/06_product_type_bias_analysis.ipynb` guide cette analyse.
 
+## Visualisation de l'espace de features
+
+Le notebook `notebooks/07_feature_space_visualization.ipynb` regroupe les visualisations utiles pour le mémoire.
+
+Il lit tous les CSV présents dans `reports/`, y compris les sous-dossiers, puis génère des graphiques de synthèse :
+
+- comparaison `standard_split` / `unseen_category_split` ;
+- courbes d'entraînement ;
+- matrices de confusion ;
+- comparaison des méthodes d'incertitude ;
+- résultats du probe `product_type` ;
+- PCA des features internes du CNN ;
+- t-SNE des features internes du CNN.
+
+Les figures sont sauvegardées dans :
+
+```text
+reports/figures/
+```
+
+Cette visualisation aide à voir si les représentations du CNN se regroupent plutôt par `freshness` ou par `product_type`.
+
 ## Plateforme web
 
 Une première plateforme web statique est disponible dans le dossier `web/`.

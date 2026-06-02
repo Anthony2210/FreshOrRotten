@@ -10,6 +10,7 @@ Notebooks :
 - `04_feature_distance_uncertainty.ipynb` : évaluer une incertitude basée sur les features internes du CNN ;
 - `05_hybrid_uncertainty.ipynb` : combiner confiance sigmoid et distance de features ;
 - `06_product_type_bias_analysis.ipynb` : tester si les features du CNN encodent le type du produit ;
+- `07_feature_space_visualization.ipynb` : visualiser les features avec PCA/t-SNE et synthétiser les CSV de résultats ;
 - `baseline_colab.ipynb` : exécuter l'entraînement et les évaluations sur Google Colab.
 
 Le notebook `01_data_exploration.ipynb` sauvegarde les figures dans :
@@ -38,5 +39,8 @@ Une image est acceptée seulement si le score sigmoid est assez confiant et si l
 
 Le notebook `06_product_type_bias_analysis.ipynb` entraîne un petit classifieur sur les features internes du CNN pour prédire `product_type`.
 Cette analyse aide à mesurer si le modèle encode fortement les catégories vues pendant l'entraînement.
+
+Le notebook `07_feature_space_visualization.ipynb` lit tous les CSV disponibles dans `reports/`, y compris les sous-dossiers.
+Il génère des graphiques de synthèse pour le mémoire et visualise l'espace de features du CNN avec PCA et t-SNE.
 
 Le notebook `baseline_colab.ipynb` prépare Colab, copie le dataset depuis Google Drive vers le disque local, lance le `standard_split`, puis le `unseen_category_split`.

@@ -337,6 +337,57 @@ Le projet progresse donc de façon scientifique : une limite est observée, une 
 
 La suite la plus intéressante serait de travailler directement sur l'apprentissage des représentations, par exemple avec une méthode qui réduit la dépendance au `product_type`, plutôt qu'une règle de rejet ajoutée après l'entraînement.
 
+## Analyse du biais product_type
+
+Une analyse supplémentaire a été réalisée pour mieux comprendre les représentations internes du CNN.
+Le modèle CNN entraîné pour prédire `fresh` / `rotten` est gardé tel quel.
+On extrait ensuite ses features internes, puis on entraîne un classifieur simple pour prédire `product_type`.
+
+Cette méthode correspond à un `linear probe`.
+Elle ne modifie pas le CNN.
+Elle sert à tester si les features apprises pour la fraîcheur contiennent aussi l'information du type de produit.
+
+Résultats globaux :
+
+| split | product types | majority baseline accuracy | accuracy | balanced accuracy | macro F1-score | weighted F1-score |
+|---|---:|---:|---:|---:|---:|---:|
+| validation | 22 | 0.1413 | 0.6550 | 0.7764 | 0.6923 | 0.6636 |
+| test | 22 | 0.1455 | 0.6593 | 0.7806 | 0.6965 | 0.6683 |
+
+La baseline majoritaire consiste à prédire toujours le type de produit le plus fréquent du `training_set`.
+Elle atteint seulement environ 14 % d'accuracy.
+Le classifieur entraîné sur les features du CNN atteint environ 66 % d'accuracy sur le `test_set`.
+
+Ce résultat montre que les représentations internes du CNN contiennent fortement l'information `product_type`.
+Le modèle entraîné pour `fresh` / `rotten` encode donc aussi des indices liés aux catégories de produits.
+
+Résultats par `product_type` sur le `test_set` :
+
+| product_type | F1-score |
+|---|---:|
+| potato | 0.4074 |
+| mango | 0.4190 |
+| carrot | 0.4405 |
+| strawberry | 0.4606 |
+| apple | 0.5450 |
+| orange | 0.6277 |
+| banana | 0.6689 |
+| tomato | 0.6865 |
+| pomegranate | 0.8382 |
+| peach | 0.9756 |
+| pear | 0.9799 |
+| grape | 0.9907 |
+| kaki | 0.9944 |
+| papaya | 0.9954 |
+
+Certaines catégories sont donc très faciles à retrouver dans l'espace de features, tandis que d'autres sont plus confondues.
+Cette observation soutient l'hypothèse principale du projet :
+
+> sur un split classique, le CNN peut s'appuyer en partie sur des indices propres aux catégories vues, et pas seulement sur une notion générale de fraîcheur.
+
+Cette analyse explique mieux pourquoi la performance baisse avec le `unseen_category_split`.
+Quand certaines catégories sont absentes de l'entraînement, le modèle perd une partie des repères liés aux produits vus.
+
 ## Limites à garder en tête
 
 Ces résultats dépendent du dataset Freshness44 et du split choisi.

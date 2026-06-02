@@ -13,6 +13,9 @@ __pycache__/
 # Notebooks
 .ipynb_checkpoints/
 
+# Rédaction locale non versionnée
+memoire/
+
 # Données locales
 data/raw/
 data/processed/

@@ -77,6 +77,32 @@ product_type_bias_analysis:
   product_type_metrics_filename: product_type_probe_by_product_type.csv
   confusion_matrix_filename: product_type_probe_confusion_matrix.csv
 
+product_type_invariant:
+  adversarial_weight: 0.1
+  reports_dir: reports/product_type_invariant
+  model_filename: product_type_invariant_model.keras
+  history_filename: product_type_invariant_history.csv
+  split_filename: product_type_invariant_standard_split.csv
+  mapping_filename: product_type_invariant_mapping.csv
+  metrics_filename: product_type_invariant_standard_metrics.csv
+  confusion_matrix_filename: product_type_invariant_standard_confusion_matrix.csv
+  unseen_model_filename: product_type_invariant_unseen.keras
+  unseen_history_filename: product_type_invariant_unseen_history.csv
+  unseen_split_filename: product_type_invariant_unseen_split.csv
+  unseen_mapping_filename: product_type_invariant_unseen_mapping.csv
+  unseen_metrics_filename: product_type_invariant_unseen_metrics.csv
+  unseen_confusion_matrix_filename: product_type_invariant_unseen_confusion_matrix.csv
+  unseen_product_type_metrics_filename: product_type_invariant_unseen_metrics_by_product_type.csv
+  comparison_filename: product_type_invariant_comparison.csv
+
+feature_visualization:
+  feature_layer_index: -3
+  max_images: 3000
+  tsne_perplexity: 30
+  tsne_learning_rate: auto
+  tsne_iterations: 1000
+  output_prefix: feature_space
+
 web_app:
   confidence_thresholds:
     confident: 0.80
