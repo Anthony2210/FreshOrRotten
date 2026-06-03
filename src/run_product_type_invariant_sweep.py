@@ -53,7 +53,7 @@ def apply_overrides(config, args):
     return config
 
 
-def build_output_root(output_root):
+def build_output_root(output_root, resume=False):
     """Crée un dossier daté pour éviter d'écraser les expériences précédentes."""
     if output_root is None:
         run_name = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -62,6 +62,9 @@ def build_output_root(output_root):
         output_root = resolve_project_path(output_root)
 
     if output_root.exists():
+        if resume:
+            return output_root
+
         raise FileExistsError(
             f"Le dossier existe déjà : {output_root}. "
             "Choisissez un autre --output-root pour ne pas écraser les résultats."
@@ -94,6 +97,43 @@ def get_splits(split_name):
         return ["standard", "unseen"]
 
     return [split_name]
+
+
+def get_protocol_artifacts(config, reports_dir, protocol):
+    """Retourne les fichiers attendus pour reprendre une expérience."""
+    invariant_config = config["product_type_invariant"]
+    model_dir = PROJECT_ROOT / config["paths"]["model_dir"]
+
+    if protocol == "standard":
+        return {
+            "model_path": model_dir / invariant_config.get("model_filename"),
+            "metrics_path": reports_dir / invariant_config.get(
+                "metrics_filename",
+                "product_type_invariant_standard_metrics.csv",
+            ),
+            "split_path": reports_dir / invariant_config.get(
+                "split_filename",
+                "product_type_invariant_standard_split.csv",
+            ),
+        }
+
+    return {
+        "model_path": model_dir / invariant_config.get("unseen_model_filename"),
+        "metrics_path": reports_dir / invariant_config.get(
+            "unseen_metrics_filename",
+            "product_type_invariant_unseen_metrics.csv",
+        ),
+        "split_path": reports_dir / invariant_config.get(
+            "unseen_split_filename",
+            "product_type_invariant_unseen_split.csv",
+        ),
+    }
+
+
+def can_resume_protocol(config, reports_dir, protocol):
+    """Vérifie si entraînement et évaluation existent déjà."""
+    artifacts = get_protocol_artifacts(config, reports_dir, protocol)
+    return all(path.exists() for path in artifacts.values())
 
 
 def read_metrics_row(metrics_path):
@@ -145,7 +185,7 @@ def collect_summary_row(config, reports_dir, weight, protocol, probe_metrics):
     }
 
 
-def run_weight_experiment(base_config, weight, splits, output_root, unseen_categories, run_probe):
+def run_weight_experiment(base_config, weight, splits, output_root, unseen_categories, run_probe, resume=False):
     """Lance entraînement, évaluation et sonde pour un poids."""
     experiment_config, reports_dir = build_experiment_config(base_config, weight, output_root)
     summary_rows = []
@@ -154,6 +194,10 @@ def run_weight_experiment(base_config, weight, splits, output_root, unseen_categ
     print(f"Rapports : {reports_dir}")
 
     for split_name in splits:
+        if resume and can_resume_protocol(experiment_config, reports_dir, split_name):
+            print(f"\n--- {split_name} déjà disponible, étape ignorée ---")
+            continue
+
         print(f"\n--- Entraînement {split_name} ---")
         train_product_type_invariant_model(
             experiment_config,
@@ -169,14 +213,20 @@ def run_weight_experiment(base_config, weight, splits, output_root, unseen_categ
         model_dir = PROJECT_ROOT / experiment_config["paths"]["model_dir"]
         model_path = model_dir / experiment_config["product_type_invariant"]["model_filename"]
         probe_dir = reports_dir / "product_type_probe"
+        probe_metrics_path = probe_dir / "product_type_probe_metrics.csv"
+        standard_split_path = get_protocol_artifacts(experiment_config, reports_dir, "standard")["split_path"]
 
-        print("\n--- Sonde product_type ---")
-        run_product_type_analysis(
-            experiment_config,
-            model_path=model_path,
-            output_dir=probe_dir,
-            feature_layer_name="freshness_embedding",
-        )
+        if resume and probe_metrics_path.exists():
+            print("\n--- Sonde product_type déjà disponible, étape ignorée ---")
+        else:
+            print("\n--- Sonde product_type ---")
+            run_product_type_analysis(
+                experiment_config,
+                model_path=model_path,
+                output_dir=probe_dir,
+                feature_layer_name="freshness_embedding",
+                split_path=standard_split_path,
+            )
         probe_metrics = read_probe_metrics(probe_dir)
     elif run_probe:
         print("Sonde ignorée : elle utilise le modèle standard, mais le split standard n'a pas été lancé.")
@@ -203,13 +253,18 @@ def parse_args():
     parser.add_argument("--batch-size", type=int, default=None)
     parser.add_argument("--early-stopping-patience", type=int, default=None)
     parser.add_argument("--run-probe", action="store_true")
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Reprend un dossier existant sans relancer les protocoles déjà évalués.",
+    )
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
     base_config = apply_overrides(load_config(args.config), args)
-    output_root = build_output_root(args.output_root)
+    output_root = build_output_root(args.output_root, resume=args.resume)
     splits = get_splits(args.split)
 
     all_rows = []
@@ -221,6 +276,7 @@ def main():
             output_root=output_root,
             unseen_categories=args.unseen_categories,
             run_probe=args.run_probe,
+            resume=args.resume,
         )
         all_rows.extend(rows)
 

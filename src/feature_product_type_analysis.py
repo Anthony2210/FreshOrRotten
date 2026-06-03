@@ -30,12 +30,16 @@ from train import create_image_dataset, get_image_size
 from uncertainty import get_dataset_path, get_protocol_settings, get_reports_dir, load_config
 
 
-def load_standard_sets(config):
+def load_standard_sets(config, split_path=None):
     """Charge les splits standard déjà sauvegardés."""
-    reports_dir = get_reports_dir(config)
     dataset_path = get_dataset_path(config)
-    split_filename = config["training"].get("split_filename", "standard_split.csv")
-    split_path = reports_dir / split_filename
+
+    if split_path is None:
+        reports_dir = get_reports_dir(config)
+        split_filename = config["training"].get("split_filename", "standard_split.csv")
+        split_path = reports_dir / split_filename
+    else:
+        split_path = resolve_project_path(split_path)
 
     if not split_path.exists():
         raise FileNotFoundError(f"Split standard introuvable : {split_path}")
@@ -170,7 +174,7 @@ def build_feature_extractor_from_settings(model, layer_index, layer_name=None):
     return build_feature_extractor(model, layer_index)
 
 
-def run_product_type_analysis(config, model_path=None, output_dir=None, feature_layer_name=None):
+def run_product_type_analysis(config, model_path=None, output_dir=None, feature_layer_name=None, split_path=None):
     """Lance l'analyse de dépendance au product_type."""
     training_config = config["training"]
     analysis_config = config.get("product_type_bias_analysis", {})
@@ -191,7 +195,7 @@ def run_product_type_analysis(config, model_path=None, output_dir=None, feature_
     random_seed = int(training_config.get("random_seed", 42))
     layer_index = int(analysis_config.get("feature_layer_index", -3))
 
-    training_set, validation_set, test_set = load_standard_sets(config)
+    training_set, validation_set, test_set = load_standard_sets(config, split_path=split_path)
     model = tf.keras.models.load_model(
         model_path,
         custom_objects={"GradientReversal": GradientReversal},
@@ -304,15 +308,32 @@ def parse_args():
         default=None,
         help="Nom de la couche de features à analyser.",
     )
+    parser.add_argument(
+        "--split-path",
+        type=Path,
+        default=None,
+        help="Split standard à utiliser pour l'analyse.",
+    )
+    parser.add_argument(
+        "--raw-data-dir",
+        type=Path,
+        default=None,
+        help="Dossier local du dataset.",
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
     project_config = load_config(args.config)
+
+    if args.raw_data_dir is not None:
+        project_config["paths"]["raw_data_dir"] = str(args.raw_data_dir)
+
     run_product_type_analysis(
         project_config,
         model_path=args.model_path,
         output_dir=args.output_dir,
         feature_layer_name=args.feature_layer_name,
+        split_path=args.split_path,
     )
