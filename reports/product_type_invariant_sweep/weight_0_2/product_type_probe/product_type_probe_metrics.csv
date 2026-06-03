@@ -1,0 +1,3 @@
+feature_layer_index,split,image_count,product_type_count,majority_product_type,majority_baseline_accuracy,accuracy,balanced_accuracy,macro_f1_score,weighted_f1_score
+-3,validation,10723,22,apple,0.14203114799962696,0.5928378252354751,0.7222604696943894,0.6228831550902819,0.6089906886203815
+-3,test,10724,22,apple,0.1448153674002238,0.5883998508019396,0.7209889148887826,0.6167046948221068,0.6023212307280982
