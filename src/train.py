@@ -58,11 +58,25 @@ def detect_freshness(path_parts):
 
 def detect_product_type(relative_path):
     """Déduit le type du produit à partir du premier dossier utile."""
-    folder_name = relative_path.parts[0]
-    product_type = normalize_name(folder_name)
+    folder_names = [normalize_name(part) for part in relative_path.parts[:-1]]
+
+    product_type = folder_names[0]
+    for folder_index, folder_name in enumerate(folder_names):
+        if "fresh" not in folder_name and "rotten" not in folder_name:
+            continue
+
+        product_type = folder_name
+
+        # Si le dossier indique seulement fresh/rotten, le dossier précédent porte le product_type.
+        cleaned_name = product_type.replace("_fresh", "").replace("_rotten", "")
+        cleaned_name = cleaned_name.replace("fresh_", "").replace("rotten_", "").strip("_")
+        if cleaned_name in {"", "fresh", "rotten"} and folder_index > 0:
+            product_type = folder_names[folder_index - 1]
+        break
+
     product_type = product_type.replace("_fresh", "").replace("_rotten", "")
     product_type = product_type.replace("fresh_", "").replace("rotten_", "")
-    return product_type
+    return product_type.strip("_")
 
 
 def scan_image_files(dataset_path, labels):
